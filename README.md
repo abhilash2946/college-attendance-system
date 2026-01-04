@@ -98,6 +98,3 @@ python run.py
 - **Frontend**: Bootstrap 5.3.0, HTML/CSS
 - **Authentication**: Flask-Login
 
-## License
-
-MIT License
