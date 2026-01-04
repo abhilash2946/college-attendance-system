@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="row">
+  <div class="col-md-12">
+    <div class="card shadow-sm">
+      <div class="card-header bg-primary text-white">
+        <div class="row align-items-center">
+          <div class="col-md-8">
+            <h5 class="mb-0">Attendance Report - {{ summary.branch }} Year {{ summary.year }} Section {{ summary.section }}</h5>
+            <small>Date: {{ summary.date }}</small>
+          </div>
+          <div class="col-md-4 text-end">
+            <span class="badge bg-info">Status: {{ summary.status }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="card-body">
+        <div class="row mb-4">
+          <div class="col-md-3">
+            <div class="card bg-success text-white">
+              <div class="card-body text-center">
+                <h6 class="card-title">Present</h6>
+                <h3>{{ summary.total_present }}</h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-danger text-white">
+              <div class="card-body text-center">
+                <h6 class="card-title">Absent</h6>
+                <h3>{{ summary.total_absent }}</h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-info text-white">
+              <div class="card-body text-center">
+                <h6 class="card-title">Total</h6>
+                <h3>{{ summary.total_present + summary.total_absent }}</h3>
+              </div>
+            </div>
+          </div>
+          <div class="col-md-3">
+            <div class="card bg-secondary text-white">
+              <div class="card-body text-center">
+                <h6 class="card-title">Attendance %</h6>
+                <h3>{{ (summary.total_present / (summary.total_present + summary.total_absent) * 100)|round(1) }}%</h3>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <h6 class="mt-4 mb-3">Student Details</h6>
+        <div class="table-responsive">
+          <table class="table table-striped table-hover table-bordered">
+            <thead class="table-dark">
+              <tr>
+                <th style="width: 15%;">Roll No.</th>
+                <th style="width: 55%;">Student Name</th>
+                <th style="width: 15%;">Status</th>
+                <th style="width: 15%;">Badge</th>
+              </tr>
+            </thead>
+            <tbody>
+              {% for r in records %}
+              <tr>
+                <td><strong>{{ r.roll_no }}</strong></td>
+                <td>{{ r.student.name if r.student else 'N/A' }}</td>
+                <td>{{ r.status|upper }}</td>
+                <td>
+                  {% if r.status == 'present' %}
+                    <span class="badge bg-success">Present</span>
+                  {% else %}
+                    <span class="badge bg-danger">Absent</span>
+                  {% endif %}
+                </td>
+              </tr>
+              {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <div class="row mt-4">
+          <div class="col-md-12">
+            <a href="{{ url_for('admin.dashboard') }}" class="btn btn-secondary">Back to Dashboard</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
