@@ -1,0 +1,115 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-danger text-white py-4">
+          <h2 class="mb-0">✅ Authority Dashboard - Review & Approve</h2>
+        </div>
+        <div class="card-body p-5">
+          {% if not data %}
+            <div class="alert alert-info alert-lg text-center p-5" style="font-size: 18px;">
+              <h5>📋 No attendance records found</h5>
+              <p>No submitted attendance reports are available for review at this time.</p>
+            </div>
+          {% else %}
+            <div class="table-responsive">
+              <table class="table table-striped table-hover table-bordered" style="font-size: 16px;">
+                <thead class="table-dark">
+                  <tr style="font-size: 17px;">
+                    <th style="width: 12%;">📅 Date</th>
+                    <th style="width: 12%;">🏢 Branch</th>
+                    <th style="width: 8%;">📊 Year</th>
+                    <th style="width: 8%;">👥 Section</th>
+                    <th class="text-center" style="width: 10%;">✓ Present</th>
+                    <th class="text-center" style="width: 10%;">✗ Absent</th>
+                    <th class="text-center" style="width: 10%;">👨‍🎓 Total</th>
+                    <th class="text-center" style="width: 15%;">🏷️ Status</th>
+                    <th class="text-center" style="width: 15%;">⚙️ Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for s in data %}
+                  <tr style="height: 50px; vertical-align: middle;">
+                    <td><strong style="font-size: 16px;">{{ s.date }}</strong></td>
+                    <td style="font-size: 16px;">{{ s.branch }}</td>
+                    <td style="font-size: 16px;">{{ s.year }}</td>
+                    <td style="font-size: 16px;">{{ s.section }}</td>
+                    <td class="text-center" style="font-size: 17px;"><span class="badge bg-success p-2" style="font-size: 16px;">{{ s.present }}</span></td>
+                    <td class="text-center" style="font-size: 17px;"><span class="badge bg-danger p-2" style="font-size: 16px;">{{ s.absent }}</span></td>
+                    <td class="text-center" style="font-size: 17px;"><strong>{{ s.present + s.absent }}</strong></td>
+                    <td class="text-center">
+                      {% if s.status == 'submitted' %}
+                        <span class="badge bg-warning text-dark p-2" style="font-size: 14px; padding: 8px 12px !important;">⏳ Pending</span>
+                      {% elif s.status == 'approved' %}
+                        <span class="badge bg-success p-2" style="font-size: 14px; padding: 8px 12px !important;">✓ Approved</span>
+                      {% else %}
+                        <span class="badge bg-secondary p-2" style="font-size: 14px; padding: 8px 12px !important;">{{ s.status }}</span>
+                      {% endif %}
+                    </td>
+                    <td class="text-center">
+                      {% if s.status != 'approved' %}
+                        <a class="btn btn-success btn-lg" href="{{ url_for('admin.approve', id=s.id) }}" style="font-size: 14px; padding: 10px 20px;">Approve ✓</a>
+                      {% else %}
+                        <span class="text-success" style="font-size: 16px;">✓ Done</span>
+                      {% endif %}
+                    </td>
+                  </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+            </div>
+
+            <div class="row mt-4">
+              <div class="col-md-12">
+                <div class="card bg-light border-primary">
+                  <div class="card-body p-4">
+                    <h5 class="card-title" style="font-size: 18px;">📊 Summary Statistics</h5>
+                    <div class="row">
+                      <div class="col-md-3">
+                        <div class="text-center p-3">
+                          <h6 style="font-size: 14px; color: #666;">Total Records</h6>
+                          <h2 style="font-size: 32px; color: #007bff;">{{ data|length }}</h2>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="text-center p-3">
+                          <h6 style="font-size: 14px; color: #666;">⏳ Pending Review</h6>
+                          <h2 style="font-size: 32px; color: #ffc107;">{{ data|selectattr('status', 'equalto', 'submitted')|list|length }}</h2>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="text-center p-3">
+                          <h6 style="font-size: 14px; color: #666;">✓ Approved</h6>
+                          <h2 style="font-size: 32px; color: #28a745;">{{ data|selectattr('status', 'equalto', 'approved')|list|length }}</h2>
+                        </div>
+                      </div>
+                      <div class="col-md-3">
+                        <div class="text-center p-3">
+                          <h6 style="font-size: 14px; color: #666;">Approval Rate</h6>
+                          <h2 style="font-size: 32px; color: #6c757d;">
+                            {% if data %}
+                              {{ ((data|selectattr('status', 'equalto', 'approved')|list|length) * 100 / (data|length))|int }}%
+                            {% else %}
+                              0%
+                            {% endif %}
+                          </h2>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          {% endif %}
+
+          <div class="mt-4">
+            <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-lg">← Logout</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

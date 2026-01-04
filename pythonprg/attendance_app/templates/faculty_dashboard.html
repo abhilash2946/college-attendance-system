@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white py-4">
+          <h2 class="mb-0">📋 Mark Attendance</h2>
+        </div>
+        <div class="card-body p-5">
+          <p class="text-muted mb-4" style="font-size: 18px;">Select the class details to mark attendance for students:</p>
+          <form method="get" action="{{ url_for('faculty.mark') }}">
+            <div class="row g-4">
+              <div class="col-md-4">
+                <label class="form-label fw-bold" style="font-size: 16px;">Branch <span class="text-danger">*</span></label>
+                <input type="text" name="branch" required class="form-control form-control-lg" placeholder="e.g., CSE, ECE, MECH" style="font-size: 16px; padding: 12px;" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold" style="font-size: 16px;">Year <span class="text-danger">*</span></label>
+                <input type="number" name="year" required type="number" min="1" max="5" class="form-control form-control-lg" placeholder="1-5" style="font-size: 16px; padding: 12px;" />
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold" style="font-size: 16px;">Section <span class="text-danger">*</span></label>
+                <input type="text" name="section" required class="form-control form-control-lg" placeholder="e.g., A, B, C" style="font-size: 16px; padding: 12px;" />
+              </div>
+              <div class="col-md-2 d-flex align-items-end">
+                <button type="submit" class="btn btn-primary btn-lg w-100" style="font-size: 16px; padding: 12px;">Fetch</button>
+              </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mt-5">
+    <div class="col-md-12">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-info text-white py-4">
+          <h3 class="mb-0">📌 Instructions</h3>
+        </div>
+        <div class="card-body p-5">
+          <ul class="mb-0" style="font-size: 18px; line-height: 2;">
+            <li>✅ Enter your branch, year, and section details</li>
+            <li>✅ Click "Fetch" to load the student list</li>
+            <li>✅ By default, all students are marked <strong>Present</strong></li>
+            <li>✅ Check the box for students who are <strong>Absent</strong></li>
+            <li>✅ Review and submit attendance</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
