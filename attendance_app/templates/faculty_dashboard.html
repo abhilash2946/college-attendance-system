@@ -1,0 +1,201 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <!-- Profile Summary Section -->
+  <div class="row mb-4">
+    <div class="col-md-12">
+      <div class="card shadow-sm border-0 bg-light">
+        <div class="card-body d-flex align-items-center">
+          <div class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center" style="width: 60px; height: 60px; font-size: 24px;">
+            {{ current_user.name[0] if current_user.name else current_user.username[0] }}
+          </div>
+          <div class="ms-4">
+            <h4 class="mb-0">Welcome, {{ current_user.name }}</h4>
+            <p class="text-muted mb-0">
+              <strong>Dept:</strong> {{ current_user.department or 'Not Set' }} |
+              <strong>Branch:</strong> {{ current_user.branch or 'Not Set' }} |
+              <strong>Subject:</strong> <span class="badge bg-info text-dark">{{ current_user.subject or 'Not Set' }}</span>
+            </p>
+          </div>
+          <div class="ms-auto">
+             <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#profileModal">
+               Update Profile
+             </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
+    <div class="col-md-12">
+      <div class="card shadow-lg border-0">
+        <div class="card-header bg-primary text-white py-4">
+          <h2 class="mb-0">📋 Mark Individual Attendance</h2>
+        </div>
+        <div class="card-body p-5">
+          <form method="get" action="{{ url_for('faculty.mark') }}">
+            <div class="row g-4">
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Department <span class="text-danger">*</span></label>
+                <select id="department" name="department" required class="form-control form-control-lg" onchange="updateOptions()">
+                  <option value="">Select Department</option>
+                  <option value="Engineering" {% if current_user.department == 'Engineering' %}selected{% endif %}>Engineering</option>
+                  <option value="Pharmacy" {% if current_user.department == 'Pharmacy' %}selected{% endif %}>Pharmacy</option>
+                  <option value="MBA" {% if current_user.department == 'MBA' %}selected{% endif %}>MBA</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Branch <span class="text-danger">*</span></label>
+                <select id="branch" name="branch" required class="form-control form-control-lg">
+                  <option value="">Select Branch</option>
+                </select>
+              </div>
+              <div class="col-md-2">
+                <label class="form-label fw-bold">Year <span class="text-danger">*</span></label>
+                <select id="year" name="year" required class="form-control form-control-lg">
+                  <option value="">Select Year</option>
+                </select>
+              </div>
+              <div class="col-md-3">
+                <label class="form-label fw-bold">Section <span class="text-danger">*</span></label>
+                <select name="section" required class="form-control form-control-lg">
+                  <option value="">Select Section</option>
+                  <option value="A">A</option>
+                  <option value="B">B</option>
+                  <option value="C">C</option>
+                </select>
+              </div>
+            </div>
+            
+            <div class="row g-4 mt-2">
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Academic Year <span class="text-danger">*</span></label>
+                <select id="academic_year" name="academic_year" required class="form-control form-control-lg">
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Semester <span class="text-danger">*</span></label>
+                <select id="semester" name="semester" required class="form-control form-control-lg">
+                  <option value="1 Semester">1 Semester</option>
+                  <option value="2 Semester">2 Semester</option>
+                </select>
+              </div>
+              <div class="col-md-4">
+                <label class="form-label fw-bold">Subject <span class="text-danger">*</span></label>
+                <input type="text" name="subject" required class="form-control form-control-lg" value="{{ current_user.subject or '' }}" placeholder="Enter subject name" />
+              </div>
+            </div>
+
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <button type="submit" class="btn btn-primary btn-lg w-100">Fetch Students</button>
+                </div>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Profile Modal -->
+<div class="modal fade" id="profileModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="{{ url_for('faculty.update_profile') }}" method="POST">
+        <div class="modal-header">
+          <h5 class="modal-title">Update Profile</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label">Subject You Teach</label>
+            <input type="text" name="subject" class="form-control" value="{{ current_user.subject or '' }}" required>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Default Department</label>
+            <select name="department" class="form-select">
+                <option value="Engineering" {% if current_user.department == 'Engineering' %}selected{% endif %}>Engineering</option>
+                <option value="Pharmacy" {% if current_user.department == 'Pharmacy' %}selected{% endif %}>Pharmacy</option>
+                <option value="MBA" {% if current_user.department == 'MBA' %}selected{% endif %}>MBA</option>
+            </select>
+          </div>
+          <div class="mb-3">
+            <label class="form-label">Default Branch</label>
+            <input type="text" name="branch" class="form-control" value="{{ current_user.branch or '' }}" placeholder="e.g. AIML">
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+          <button type="submit" class="btn btn-primary">Save changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+
+<script>
+const data = {
+    "Engineering": { "branches": ["CSE", "ECE", "AIML", "DS", "IT"], "years": 4 },
+    "Pharmacy": { "branches": ["B.Pharm"], "years": 4 },
+    "MBA": { "branches": ["MBA"], "years": 2 }
+};
+
+const userBranch = "{{ current_user.branch or '' }}";
+
+function updateOptions() {
+    const deptSelect = document.getElementById('department');
+    const branchSelect = document.getElementById('branch');
+    const yearSelect = document.getElementById('year');
+    const selectedDept = deptSelect.value;
+
+    branchSelect.innerHTML = '<option value="">Select Branch</option>';
+    yearSelect.innerHTML = '<option value="">Select Year</option>';
+
+    if (selectedDept && data[selectedDept]) {
+        data[selectedDept].branches.forEach(branch => {
+            const option = document.createElement('option');
+            option.value = branch;
+            option.textContent = branch;
+            if(branch === userBranch) option.selected = true;
+            branchSelect.appendChild(option);
+        });
+        for (let i = 1; i <= data[selectedDept].years; i++) {
+            const option = document.createElement('option');
+            option.value = i;
+            option.textContent = i;
+            yearSelect.appendChild(option);
+        }
+    }
+}
+
+function setAcademicYearAndSemester() {
+    const aySelect = document.getElementById('academic_year');
+    const semSelect = document.getElementById('semester');
+    const now = new Date();
+    const year = now.getFullYear();
+    const month = now.getMonth() + 1;
+
+    let currentAY = month >= 6 ? `${year}-${year + 1}` : `${year - 1}-${year}`;
+    const [start, end] = currentAY.split('-').map(Number);
+    const years = [`${start-1}-${end-1}`, currentAY, `${start+1}-${end+1}`];
+
+    aySelect.innerHTML = '';
+    years.forEach(ay => {
+        const option = document.createElement('option');
+        option.value = ay;
+        option.textContent = ay;
+        if (ay === currentAY) option.selected = true;
+        aySelect.appendChild(option);
+    });
+
+    semSelect.value = (month >= 7 || month <= 12) ? "1 Semester" : "2 Semester";
+}
+
+window.onload = function() {
+    setAcademicYearAndSemester();
+    updateOptions();
+};
+</script>
+{% endblock %}

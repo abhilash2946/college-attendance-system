@@ -1,0 +1,274 @@
+{% extends "base.html" %}
+{% block content %}
+<div class="container mt-5">
+  <div class="row">
+    <div class="col-md-10 mx-auto">
+      {% if not students and branch %}
+        <!-- No students found -->
+        <div class="card shadow-lg border-0">
+          <div class="card-header bg-danger text-white py-4">
+            <h2 class="mb-0">❌ No Students Found</h2>
+          </div>
+          <div class="card-body p-5">
+            <p style="font-size: 18px;">No students found for <strong>{{ department }} | {{ branch }} / Year {{ year }} / Section {{ section }}</strong></p>
+            <a href="{{ url_for('faculty.dashboard') }}" class="btn btn-secondary btn-lg mt-3">← Back to Dashboard</a>
+          </div>
+        </div>
+      {% elif students %}
+        <!-- Student attendance list -->
+        <div class="card shadow-lg border-0">
+          <div class="card-header bg-success text-white py-4">
+            <h2 class="mb-0">📝 Mark Attendance - {{ department }} | {{ branch }} | Year {{ year }} | Section {{ section }} | {{ academic_year }} | {{ semester }} | {{ subject }}</h2>
+            <small style="font-size: 16px;">Date: <strong>{{ today }}</strong></small>
+          </div>
+          <div class="card-body p-5">
+            <form method="post">
+              <input type="hidden" name="department" value="{{ department }}">
+              <input type="hidden" name="branch" value="{{ branch }}">
+              <input type="hidden" name="year" value="{{ year }}">
+              <input type="hidden" name="section" value="{{ section }}">
+              <input type="hidden" name="academic_year" value="{{ academic_year }}">
+              <input type="hidden" name="semester" value="{{ semester }}">
+              <input type="hidden" name="subject" value="{{ subject }}">
+              <input type="hidden" name="date" value="{{ today }}">
+
+              <div class="alert alert-primary p-4" role="alert" style="font-size: 16px;">
+                <strong>📌 Note:</strong> All students are marked <span class="badge bg-success" style="font-size: 14px;">Present</span> by default. 
+                Check the box for students who are <span class="badge bg-danger" style="font-size: 14px;">Absent</span>.
+              </div>
+
+              <div class="table-responsive" style="margin: 30px 0;">
+                <table class="table table-striped table-hover table-bordered" style="font-size: 16px;">
+                  <thead class="table-dark">
+                    <tr style="font-size: 17px;">
+                      <th style="width: 8%;">Absent?</th>
+                      <th style="width: 15%;">📌 Roll No.</th>
+                      <th style="width: 50%;">👤 Student Name</th>
+                      <th style="width: 27%;">Status</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for s in students %}
+                    <tr class="student-row" style="height: 50px;">
+                      <td class="text-center">
+                        <input type="checkbox" name="absent" value="{{ s.roll_no }}" class="absent-checkbox" style="width: 20px; height: 20px;">
+                      </td>
+                      <td style="font-size: 16px;"><strong>{{ s.roll_no }}</strong></td>
+                      <td style="font-size: 16px;">{{ s.name }}</td>
+                      <td>
+                        <span class="status-badge badge bg-success present-status" style="font-size: 14px; padding: 8px 12px;">✓ Present</span>
+                        <span class="status-badge badge bg-danger absent-status" style="display:none; font-size: 14px; padding: 8px 12px;">✗ Absent</span>
+                      </td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+
+              <div class="row mt-4">
+                <div class="col-md-6">
+                  <div class="card bg-light border-primary" style="padding: 20px;">
+                    <h5 class="card-title" style="font-size: 18px;">📊 Attendance Summary</h5>
+                    <p class="mb-2" style="font-size: 17px;">Total Students: <strong>{{ students|length }}</strong></p>
+                    <p class="mb-2" style="font-size: 17px; color: green;">✓ Present: <strong id="presentCount" style="font-size: 20px;">{{ students|length }}</strong></p>
+                    <p class="mb-0" style="font-size: 17px; color: red;">✗ Absent: <strong id="absentCount" style="font-size: 20px;">0</strong></p>
+                  </div>
+                </div>
+                <div class="col-md-6">
+                  <a href="{{ url_for('faculty.dashboard') }}" class="btn btn-secondary btn-lg w-100 mb-3" style="font-size: 16px; padding: 15px;">← Cancel</a>
+                  <button type="submit" class="btn btn-success btn-lg w-100" style="font-size: 16px; padding: 15px;">✓ Submit Attendance</button>
+                </div>
+              </div>
+            </form>
+
+            <script>
+              function updateSummary() {
+                const total = {{ students|length }};
+                const absent = document.querySelectorAll('.absent-checkbox:checked').length;
+                const present = total - absent;
+                document.getElementById('presentCount').textContent = present;
+                document.getElementById('absentCount').textContent = absent;
+
+                document.querySelectorAll('.student-row').forEach(row => {
+                  const checkbox = row.querySelector('.absent-checkbox');
+                  const presentBadge = row.querySelector('.present-status');
+                  const absentBadge = row.querySelector('.absent-status');
+                  if (checkbox.checked) {
+                    presentBadge.style.display = 'none';
+                    absentBadge.style.display = 'inline-block';
+                  } else {
+                    presentBadge.style.display = 'inline-block';
+                    absentBadge.style.display = 'none';
+                  }
+                });
+              }
+
+              document.querySelectorAll('.absent-checkbox').forEach(cb => {
+                cb.addEventListener('change', updateSummary);
+              });
+            </script>
+          </div>
+        </div>
+      {% else %}
+        <!-- Initial form to enter class details -->
+        <div class="card shadow-lg border-0">
+          <div class="card-header bg-success text-white py-4">
+            <h2 class="mb-0">📝 Mark Attendance</h2>
+          </div>
+          <div class="card-body p-5">
+            <p class="text-muted mb-5" style="font-size: 17px;">📌 Select your class details to proceed with attendance marking:</p>
+            
+            <form method="get">
+              <div class="row g-4">
+                <div class="col-md-4">
+                  <label class="form-label fw-bold" style="font-size: 16px;">🏢 Department <span class="text-danger">*</span></label>
+                  <select id="department" name="department" required class="form-control form-control-lg" style="font-size: 16px; padding: 12px;" onchange="updateOptions()">
+                    <option value="">Select Department</option>
+                    <option value="Engineering" {% if current_user.department == 'Engineering' %}selected{% endif %}>Engineering</option>
+                    <option value="Pharmacy" {% if current_user.department == 'Pharmacy' %}selected{% endif %}>Pharmacy</option>
+                    <option value="MBA" {% if current_user.department == 'MBA' %}selected{% endif %}>MBA</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-bold" style="font-size: 16px;">Branch <span class="text-danger">*</span></label>
+                  <select id="branch" name="branch" required class="form-control form-control-lg" style="font-size: 16px; padding: 12px;">
+                    <option value="">Select Branch</option>
+                  </select>
+                </div>
+                <div class="col-md-2">
+                  <label class="form-label fw-bold" style="font-size: 16px;">📊 Year <span class="text-danger">*</span></label>
+                  <select id="year" name="year" required class="form-control form-control-lg" style="font-size: 16px; padding: 12px;">
+                    <option value="">Select Year</option>
+                  </select>
+                </div>
+                <div class="col-md-3">
+                  <label class="form-label fw-bold" style="font-size: 16px;">👥 Section <span class="text-danger">*</span></label>
+                  <select name="section" required class="form-control form-control-lg" style="font-size: 16px; padding: 12px;">
+                    <option value="">Select Section</option>
+                    <option value="A">A</option>
+                    <option value="B">B</option>
+                    <option value="C">C</option>
+                  </select>
+                </div>
+              </div>
+              
+              <div class="row g-4 mt-3">
+                <div class="col-md-4">
+                  <label class="form-label fw-bold" style="font-size: 16px;">📅 Academic Year <span class="text-danger">*</span></label>
+                  <select id="academic_year" name="academic_year" required class="form-control form-control-lg" style="font-size: 16px; padding: 12px;">
+                    <!-- Populated by JS -->
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label fw-bold" style="font-size: 16px;">📚 Semester <span class="text-danger">*</span></label>
+                  <select id="semester" name="semester" required class="form-control form-control-lg" style="font-size: 16px; padding: 12px;">
+                    <option value="1 Semester">1 Semester</option>
+                    <option value="2 Semester">2 Semester</option>
+                  </select>
+                </div>
+                <div class="col-md-4">
+                  <label class="form-label fw-bold" style="font-size: 16px;">📖 Subject <span class="text-danger">*</span></label>
+                  <input type="text" name="subject" class="form-control form-control-lg" placeholder="Enter subject name" value="{{ current_user.subject or '' }}" required style="font-size: 16px; padding: 12px;">
+                </div>
+              </div>
+
+              <div class="alert alert-info mt-5 p-4" role="alert" style="font-size: 16px;">
+                <strong>ℹ️ How to use:</strong><br>
+                1. Enter the department, branch, year, section, academic year, and semester<br>
+                2. Enter the subject name<br>
+                3. Click <strong>Next →</strong> to see all students in that class
+              </div>
+
+              <div class="row mt-5">
+                <div class="col-md-12">
+                  <button type="submit" class="btn btn-success btn-lg w-100" style="font-size: 18px; padding: 15px;">Next → Fetch Students</button>
+                </div>
+              </div>
+            </form>
+
+            <hr class="my-4">
+            <div class="text-center">
+              <a href="{{ url_for('faculty.dashboard') }}" class="text-muted" style="font-size: 14px; text-decoration: none;">← Back to Dashboard</a>
+            </div>
+          </div>
+        </div>
+
+        <script>
+        const data = {
+            "Engineering": {
+                "branches": ["CSE", "ECE", "AIML", "DS", "IT"],
+                "years": 4
+            },
+            "Pharmacy": {
+                "branches": ["B.Pharm"],
+                "years": 4
+            },
+            "MBA": {
+                "branches": ["MBA"],
+                "years": 2
+            }
+        };
+
+        const userBranch = "{{ current_user.branch or '' }}";
+
+        function updateOptions() {
+            const deptSelect = document.getElementById('department');
+            const branchSelect = document.getElementById('branch');
+            const yearSelect = document.getElementById('year');
+
+            const selectedDept = deptSelect.value;
+
+            branchSelect.innerHTML = '<option value="">Select Branch</option>';
+            yearSelect.innerHTML = '<option value="">Select Year</option>';
+
+            if (selectedDept && data[selectedDept]) {
+                data[selectedDept].branches.forEach(branch => {
+                    const option = document.createElement('option');
+                    option.value = branch;
+                    option.textContent = branch;
+                    if(branch === userBranch) option.selected = true;
+                    branchSelect.appendChild(option);
+                });
+
+                for (let i = 1; i <= data[selectedDept].years; i++) {
+                    const option = document.createElement('option');
+                    option.value = i;
+                    option.textContent = i;
+                    yearSelect.appendChild(option);
+                }
+            }
+        }
+
+        function setAcademicYearAndSemester() {
+            const aySelect = document.getElementById('academic_year');
+            const semSelect = document.getElementById('semester');
+            const now = new Date();
+            const year = now.getFullYear();
+            const month = now.getMonth() + 1;
+
+            let currentAY = month >= 6 ? `${year}-${year + 1}` : `${year - 1}-${year}`;
+            const [start, end] = currentAY.split('-').map(Number);
+            const years = [`${start-1}-${end-1}`, currentAY, `${start+1}-${end+1}`];
+
+            aySelect.innerHTML = '';
+            years.forEach(ay => {
+                const option = document.createElement('option');
+                option.value = ay;
+                option.textContent = ay;
+                if (ay === currentAY) option.selected = true;
+                aySelect.appendChild(option);
+            });
+
+            semSelect.value = (month >= 7 || month <= 12) ? "1 Semester" : "2 Semester";
+        }
+
+        window.onload = function() {
+            setAcademicYearAndSemester();
+            updateOptions();
+        };
+        </script>
+      {% endif %}
+    </div>
+  </div>
+</div>
+{% endblock %}
