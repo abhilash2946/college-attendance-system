@@ -1,102 +1,83 @@
-# Attendance Management System
+# Attendance Management System (NNRG Edition)
 
-A Flask-based web application for managing first-period attendance in educational institutions.
+A Flask-based web application for managing college attendance in educational institutions, specifically configured for **Engineering**, **Pharmacy**, and **MBA** departments.
 
-## Features
+## Latest Updates & Features
 
-✅ **Faculty Dashboard** - Mark attendance for students by class (branch, year, section)
-✅ **Admin Dashboard** - Review and approve submitted attendance records
-✅ **Role-Based Access** - Faculty and Admin users with different permissions
-✅ **Database** - SQLite for persistent data storage
-✅ **Responsive UI** - Bootstrap 5 with clean, modern interface
+✅ **Department-Specific Logic**: 
+- **Engineering**: CSE, ECE, AIML, DS, IT (4 Years)
+- **Pharmacy**: B.Pharm (4 Years)
+- **MBA**: MBA (2 Years)
+✅ **Faculty Profiles**: Faculty can set their default Department, Branch, and Subject in their profile for auto-loading.
+✅ **Dynamic Filtering**: Admin dashboard with persistent filters for Department, Branch, Year, Section, Academic Year, and Date.
+✅ **Auto-Loading Dates**: Current Academic Year, Semester, and Today's Date are automatically selected across all pages.
+✅ **Role-Based Access**: Secure login for Faculty and Admin users.
+✅ **Dummy Data Generator**: Script to populate the system with 5 students per class (e.g., `AIML-3-A-1`).
 
 ## Project Structure
 
 ```
 attendance_app/
-├── __init__.py          # Flask app factory
-├── config.py            # Configuration (SQLite database)
-├── extensions.py        # Flask extensions (SQLAlchemy, LoginManager)
-├── models.py            # Database models (User, Student, Attendance, AttendanceSummary)
-├── auth.py              # Authentication routes (login/logout)
-├── faculty.py           # Faculty routes (dashboard, mark attendance)
-├── admin.py             # Admin routes (dashboard, approve attendance)
-├── static/
-│   └── css/
-│       └── styles.css   # Custom styling
-└── templates/
-    ├── base.html            # Base template with header/nav
-    ├── login.html           # Login page
-    ├── faculty_dashboard.html   # Faculty home
-    ├── mark_attendance.html     # Attendance marking form
-    └── admin_dashboard.html     # Admin review panel
-
-run.py                  # Application entry point
-requirements.txt        # Python dependencies
+├── models.py            # Database models (User, Student, Attendance Summary)
+├── auth.py              # Login/Logout functionality
+├── faculty.py           # Faculty operations (Marking attendance, Profile)
+├── admin.py             # Admin operations (Filtering, Approving)
+├── templates/
+│   ├── faculty_dashboard.html   # Faculty entry point with profile
+│   ├── mark_attendance.html     # Real-time attendance marking
+│   └── admin_dashboard.html     # Advanced filtering & approvals
+├── populate_students.py  # Script to generate dummy students
+└── reset_db.py          # Script to clear and rebuild database
 ```
 
-## Installation
+## Installation & Setup
 
-1. Clone the repository:
-```bash
-git clone https://github.com/yourusername/attendance-system.git
-cd attendance-system
-```
-
-2. Create a virtual environment:
-```bash
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-```
-
-3. Install dependencies:
+1. **Install Dependencies**:
 ```bash
 pip install -r requirements.txt
 ```
 
-4. Run the application:
+2. **Reset & Initialize Database** (Required if models change):
+```bash
+python reset_db.py
+```
+
+3. **Generate Dummy Students**:
+Adds 5 students for every Branch/Year/Section/Semester combination.
+```bash
+python populate_students.py
+```
+
+4. **Create Users**:
+Create your Admin and Faculty login credentials.
+```bash
+python create_admin.py
+```
+
+5. **Run the Application**:
 ```bash
 python run.py
 ```
+Open browser: **http://127.0.0.1:5000**
 
-5. Open browser: **http://127.0.0.1:5000**
+## Usage Instructions
 
-## Default Test Credentials
+### For Faculty
+1. Login and click **Update Profile** to set your teaching Subject and Department.
+2. The Dashboard will now automatically pre-fill your details.
+3. Click **Fetch Students**, mark the **Absent** students, and **Submit**.
 
-| Role | Username | Password |
-|------|----------|----------|
-| Faculty | `faculty` | `password` |
-| Admin | `admin` | `password` |
+### For Admin
+1. Login to see the global overview.
+2. Use the **Filter Row** to find specific records. The system will "remember" your selections after you click Filter.
+3. Use the **Specific Date** picker (defaults to today) to see daily reports.
+4. Click **Approve** on pending submissions.
 
-## Usage
-
-### Faculty Flow
-1. Login with faculty credentials
-2. Enter branch, year, and section (e.g., CSE, 1, A)
-3. Click "Fetch Students" to see all students in that class
-4. Check boxes for absent students (all are marked present by default)
-5. Click "Submit Attendance" to save
-
-### Admin Flow
-1. Login with admin credentials
-2. View all submitted attendance records
-3. Check present/absent counts
-4. Click "Approve" to mark attendance as approved
-
-## Database Models
-
-- **User** - Faculty and Admin users with role-based access
-- **Student** - Student records (roll_no, name, branch, year, section)
-- **Attendance** - Individual student attendance records (date, status)
-- **AttendanceSummary** - Summary of attendance by class (present count, absent count, status)
+## Data Format
+- **Student Roll Numbers**: Generated with unique prefixes to allow "Student 1" to exist across different semesters/years.
+- **Display Names**: Formatted as `{Branch}-{Year}-{Section}-{Number}` (e.g., `AIML-3-A-1`).
 
 ## Technologies Used
-
-- **Backend**: Flask 3.1.2, SQLAlchemy 2.0
-- **Database**: SQLite
-- **Frontend**: Bootstrap 5.3.0, HTML/CSS
-- **Authentication**: Flask-Login
-
-## License
-
-MIT License
+- **Backend**: Flask, SQLAlchemy (SQLite)
+- **Frontend**: Bootstrap 5, JavaScript (Dynamic UI logic)
+- **Security**: Werkzeug (Password Hashing), Flask-Login
